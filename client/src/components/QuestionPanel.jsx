@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import socket from "../utils/sockets.js";
 
 export default function QuestionPanel({ user }) {
   const [question, setQuestion] = useState(null);
   const [answer, setAnswer] = useState("");
   const [winner, setWinner] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     socket.on("newQuestion", (q) => {
@@ -23,17 +25,24 @@ export default function QuestionPanel({ user }) {
     };
   }, []);
 
-  const handleSubmit = () => {
-    if (!question || winner) return;
+  const handleSubmit = async () => {
+    if (!question || winner || !answer) return;
 
-    socket.emit("submitAnswer", {
-      questionId: question.questionId,
-      userId: user.userId,
-      userName: user.userName,
-      answer: Number(answer),
-    });
-
-    setAnswer("");
+    setLoading(true);
+    try {
+      await axios.post("http://localhost:5000/api/answer/submit", {
+        questionId: question.questionId,
+        userId: user.userId,
+        userName: user.userName,
+        answer: Number(answer),
+      });
+      setAnswer("");
+    } catch (err) {
+      console.error("Error submitting answer:", err);
+      alert("Failed to submit answer. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,8 +56,11 @@ export default function QuestionPanel({ user }) {
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             placeholder="Your answer"
+            disabled={loading}
           />
-          <button onClick={handleSubmit}>Submit</button>
+          <button onClick={handleSubmit} disabled={loading || !answer}>
+            {loading ? "Submitting..." : "Submit"}
+          </button>
         </div>
       ) : (
         <p>
