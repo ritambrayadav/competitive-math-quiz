@@ -1,8 +1,14 @@
-export default function App() {
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import QuizPage from "./pages/QuizPage.jsx";
 
+function App() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-    Hi User!
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<QuizPage />} />
+      </Routes>
+    </Router>
   );
 }
+
+export default App;
