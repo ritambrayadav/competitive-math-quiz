@@ -1,0 +1,61 @@
+# =========================
+# Node.js / Express Backend
+# =========================
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+logs/
+debug.log
+error.log
+
+# Coverage directory (for testing)
+coverage/
+*.lcov
+
+# Build output / compiled files
+dist/
+build/
+.cache/
+.tmp/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# AWS / DynamoDB local data (if using local testing)
+.dynamodb/
+.aws/
+.aws-sam/
+samconfig.toml
+
+# Optional — if you generate Docker artifacts
+docker-compose.override.yml
+.docker/
+*.tar
