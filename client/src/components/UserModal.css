@@ -1,31 +1,37 @@
-/* UserModal.tailwind.css */
 @layer components {
-  .modal-backdrop {
-    @apply fixed inset-0 flex items-center justify-center z-50;
-    background-color: rgba(0, 0, 0, 0.5);
+  .user-modal-backdrop {
+    @apply fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm;
   }
 
-  .modal-container {
-    @apply bg-white p-6 rounded-xl shadow-lg max-w-sm w-full;
+  .user-modal-container {
+    @apply bg-white p-6 rounded-xl shadow-lg max-w-sm w-full text-left border border-gray-100;
   }
 
-  .modal-title {
-    @apply text-xl font-semibold mb-4;
+  .user-modal-title {
+    @apply text-xl font-semibold mb-4 text-gray-900 text-center;
   }
 
-  .modal-input {
-    @apply w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+  .user-modal-field {
+    @apply mb-3;
   }
 
-  .modal-buttons {
-    @apply flex justify-end gap-3 mt-2;
+  .user-modal-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
 
-  .modal-btn-cancel {
-    @apply px-4 py-2 rounded-lg bg-gray-400 text-white hover:bg-gray-500;
+  .user-modal-error {
+    @apply text-red-500 text-sm mt-1;
   }
 
-  .modal-btn-submit {
-    @apply px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700;
+  .user-modal-buttons {
+    @apply flex justify-end gap-3 mt-4;
+  }
+
+  .user-modal-btn-cancel {
+    @apply px-4 py-2 rounded-lg bg-gray-400 text-white hover:bg-gray-500 transition;
+  }
+
+  .user-modal-btn-submit {
+    @apply px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition;
   }
 }

@@ -40,37 +40,41 @@ export default function UserModal({ isOpen, onClose, onSubmit, initialUser }) {
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-container">
-        <h2 className="modal-title">Enter Your Details</h2>
+    <div className="user-modal-backdrop">
+      <div className="user-modal-container">
+        <h2 className="user-modal-title">Enter Your Details</h2>
 
-        <input
-          type="text"
-          placeholder="Username"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          className="modal-input"
-        />
-        {errors.userName && (
-          <p className="text-red-500 text-sm mb-2">{errors.userName}</p>
-        )}
+        <div className="user-modal-field">
+          <input
+            type="text"
+            placeholder="Username"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            className="user-modal-input"
+          />
+          {errors.userName && (
+            <p className="user-modal-error">{errors.userName}</p>
+          )}
+        </div>
 
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="modal-input"
-        />
-        {errors.fullName && (
-          <p className="text-red-500 text-sm mb-2">{errors.fullName}</p>
-        )}
+        <div className="user-modal-field">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="user-modal-input"
+          />
+          {errors.fullName && (
+            <p className="user-modal-error">{errors.fullName}</p>
+          )}
+        </div>
 
-        <div className="modal-buttons">
-          <button onClick={onClose} className="modal-btn-cancel">
+        <div className="user-modal-buttons">
+          <button onClick={onClose} className="user-modal-btn-cancel">
             Cancel
           </button>
-          <button onClick={handleSubmit} className="modal-btn-submit">
+          <button onClick={handleSubmit} className="user-modal-btn-submit">
             Submit
           </button>
         </div>

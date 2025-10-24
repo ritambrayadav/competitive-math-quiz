@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
 import questionRoutes from "./routes/questionRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import socketHandler from "./sockets/index.js";
 import { createNewQuestion } from "./controllers/questionController.js";
 
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/question", questionRoutes);
+app.use("/api/user", userRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {
