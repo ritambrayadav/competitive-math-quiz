@@ -1,21 +1,19 @@
 import Question from "../models/Question.js";
 import { generateQuestion } from "../utils/generateQuestion.js";
 
-// controllers/questionController.js
 let currentQuestion = null;
 
 export async function createNewQuestion(io) {
   const newQuestion = generateQuestion();
   await Question.create(newQuestion);
 
-  currentQuestion = newQuestion; // save for reconnects
+  currentQuestion = newQuestion; 
   io.emit("newQuestion", newQuestion);
 
-  console.log("✅ Emitted new question:", newQuestion.question);
+  console.log("Emitted new question:", newQuestion.question);
   return newQuestion;
 }
 
-// Helper to get the latest question
 export function getCurrentQuestion() {
   return currentQuestion;
 }
@@ -23,7 +21,7 @@ export function getCurrentQuestion() {
 
 
 export const submitAnswer = async (req, res) => {
-  const { questionId, userId, userName, answer } = req.body;
+  const { questionId, userId, userName, fullName, answer } = req.body;
 
   if (!questionId || !userId || answer === undefined) {
     return res.status(400).json({ error: "questionId, userId, and answer are required" });
@@ -31,41 +29,40 @@ export const submitAnswer = async (req, res) => {
 
   try {
     const question = await Question.get({ questionId });
+    const io = req.app.get("io"); // make sure io is attached in server.js
 
     if (!question) {
       return res.status(404).json({ error: "Question not found" });
     }
 
+    // If question already has a winner
     if (question.winner) {
-      return res.status(200).json({ message: "Answer already submitted by another user" });
+      const isCorrect = Number(answer) === Number(question.correctAnswer);
+      return res.status(200).json({
+        message: "This question already has a winner.",
+        winner: question.winner,
+        yourAnswerCorrect: isCorrect,
+      });
     }
 
+    // Correct answer -> assign winner
     if (Number(answer) === Number(question.correctAnswer)) {
-      question.winner = {
-        userId,
-        userName,
-        answer,
-        submittedAt: new Date().toISOString(),
-      };
-
+      question.winner = { userId, userName, fullName, answer, submittedAt: new Date().toISOString() };
       await question.save();
 
-      if (User) {
-        const userRecord = await User.get({ userId });
-        if (userRecord) {
-          userRecord.score = (userRecord.score || 0) + 1;
-          await userRecord.save();
-        }
-      }
-      const io = req.app.get("io");
-      if (io) io.emit("questionWinner", question.winner);
+      if (io) io.emit("questionWinner", question.winner); // emit full winner object
+
+      // Delay for next question
+      setTimeout(async () => {
+        await createNewQuestion(io);
+      }, 3000);
 
       return res.status(200).json({ message: "Correct! You are the winner.", winner: question.winner });
     } else {
       return res.status(200).json({ message: "Incorrect answer." });
     }
   } catch (err) {
-    console.error("Error submitting answer:", err);
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 };

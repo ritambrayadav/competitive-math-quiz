@@ -23,10 +23,10 @@ const io = new Server(server, {
 });
 
 socketHandler(io);
+app.set("io", io);
 
 (async () => {
   await createNewQuestion(io);
-  // setInterval(() => createNewQuestion(io), 30000);
 })();
 
 app.get("/", (req, res) => {

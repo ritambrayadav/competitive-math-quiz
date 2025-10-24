@@ -14,24 +14,23 @@ export default function QuestionPanel() {
   const [user, setUser] = useState(storedUser);
 
   useEffect(() => {
-    socket.on("newQuestion", (q) => {
-      setQuestion(q);
-      setWinner(null);
-      setAnswer("");
-    });
+  socket.on("newQuestion", (q) => {
+    setQuestion(q);
+    setWinner(null);
+    setAnswer("");
+  });
 
-    socket.on("questionWinner", (w) => setWinner(w));
+  socket.on("questionWinner", (w) => {
+    setWinner(w);
+  });
 
-    return () => {
-      socket.off("newQuestion");
-      socket.off("questionWinner");
-    };
-  }, []);
-
-  const handleSubmitClick = () => {
-    if (!user) setModalOpen(true);
-    else submitAnswer(user);
+  return () => {
+    socket.off("newQuestion");
+    socket.off("questionWinner");
   };
+}, []);
+
+
 
   const handleUserSubmit = async ({ userName, fullName }) => {
     const userData = { userId: userName, userName, fullName };
@@ -41,26 +40,37 @@ export default function QuestionPanel() {
     await submitAnswer(userData);
   };
 
-  const submitAnswer = async (userData) => {
-    if (!question || winner || !answer) return;
-    setLoading(true);
+  const handleSubmitClick = () => {
+  if (!user) setModalOpen(true);
+  else submitAnswer(user);
+};
 
-    try {
-      await axios.post("http://localhost:5000/api/question/submit", {
-        questionId: question.questionId,
-        userId: userData.userId,
-        userName: userData.userName,
-        fullName: userData.fullName,
-        answer: Number(answer),
-      });
-      setAnswer("");
-    } catch (err) {
-      console.error("Error submitting answer:", err);
-      alert("Failed to submit answer. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+const submitAnswer = async (userData) => {
+  if (!question || winner || !answer) return;
+
+  setLoading(true);
+
+  try {
+    const res = await axios.post("http://localhost:5000/api/question/submit", {
+      questionId: question.questionId,
+      userId: userData.userId,
+      userName: userData.userName,
+      fullName: userData.fullName,
+      answer: Number(answer),
+    });
+
+    const { winner: winnerData, yourAnswerCorrect } = res.data;
+    if (winnerData) setWinner(winnerData);
+
+    setAnswer(""); 
+  } catch (err) {
+    console.error(err);
+    alert("Failed to submit answer.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="question-panel">
@@ -91,7 +101,7 @@ export default function QuestionPanel() {
         </div>
       ) : (
         <p className="winner-text">
-          {winner.fullName} ({winner.userName}) answered {winner.answer} first!
+          Winner for this question is {winner.fullName} !
         </p>
       )}
 
