@@ -1,8 +1,8 @@
 import express from "express";
-import { getCurrentQuestion, submitQuestion} from "../controllers/questionController.js";
+import { getCurrentQuestion, submitAnswer} from "../controllers/questionController.js";
 
 const routerQuestion = express.Router();
 routerQuestion.get("/", getCurrentQuestion);
-routerQuestion.post("/submit", submitQuestion);
+routerQuestion.post("/submit", submitAnswer);
 
 export default routerQuestion;

@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import socket from "../utils/sockets.js";
+import UserModal from "./UserModal.jsx";
 
-export default function QuestionPanel({ user }) {
+export default function QuestionPanel() {
   const [question, setQuestion] = useState(null);
   const [answer, setAnswer] = useState("");
   const [winner, setWinner] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const storedUser = JSON.parse(localStorage.getItem("quizUser")) || null;
+  const [user, setUser] = useState(storedUser);
 
   useEffect(() => {
     socket.on("newQuestion", (q) => {
@@ -15,9 +20,7 @@ export default function QuestionPanel({ user }) {
       setAnswer("");
     });
 
-    socket.on("questionWinner", (w) => {
-      setWinner(w);
-    });
+    socket.on("questionWinner", (w) => setWinner(w));
 
     return () => {
       socket.off("newQuestion");
@@ -25,15 +28,29 @@ export default function QuestionPanel({ user }) {
     };
   }, []);
 
-  const handleSubmit = async () => {
-    if (!question || winner || !answer) return;
+  const handleSubmitClick = () => {
+    if (!user) setModalOpen(true);
+    else submitAnswer(user);
+  };
 
+  const handleUserSubmit = async ({ userName, fullName }) => {
+    const userData = { userId: userName, userName, fullName };
+    setUser(userData);
+    localStorage.setItem("quizUser", JSON.stringify(userData));
+    setModalOpen(false);
+    await submitAnswer(userData);
+  };
+
+  const submitAnswer = async (userData) => {
+    if (!question || winner || !answer) return;
     setLoading(true);
+
     try {
-      await axios.post("http://localhost:5000/api/answer/submit", {
+      await axios.post("http://localhost:5000/api/question/submit", {
         questionId: question.questionId,
-        userId: user.userId,
-        userName: user.userName,
+        userId: userData.userId,
+        userName: userData.userName,
+        fullName: userData.fullName,
         answer: Number(answer),
       });
       setAnswer("");
@@ -47,7 +64,13 @@ export default function QuestionPanel({ user }) {
 
   return (
     <div className="question-panel">
-      {question ? <h2>{question.text}</h2> : <p>Loading question...</p>}
+      <h1 className="quiz-title">Competitive Math Quiz</h1>
+
+      {question ? (
+        <h2 className="question-text">{question.question}</h2>
+      ) : (
+        <p className="loading-text">Loading question...</p>
+      )}
 
       {!winner ? (
         <div className="answer-section">
@@ -56,17 +79,28 @@ export default function QuestionPanel({ user }) {
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             placeholder="Your answer"
-            disabled={loading}
+            className="answer-input"
           />
-          <button onClick={handleSubmit} disabled={loading || !answer}>
+          <button
+            onClick={handleSubmitClick}
+            disabled={!answer || loading}
+            className={`submit-button ${!answer || loading ? "disabled" : ""}`}
+          >
             {loading ? "Submitting..." : "Submit"}
           </button>
         </div>
       ) : (
-        <p>
-          Winner: {winner.userName} answered {winner.answer} first!
+        <p className="winner-text">
+          {winner.fullName} ({winner.userName}) answered {winner.answer} first!
         </p>
       )}
+
+      <UserModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleUserSubmit}
+        initialUser={user}
+      />
     </div>
   );
 }
