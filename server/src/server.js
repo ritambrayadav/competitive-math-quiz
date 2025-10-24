@@ -11,9 +11,7 @@ import { createNewQuestion } from "./controllers/questionController.js";
 dotenv.config();
 
 const app = express();
-app.use(cors({    
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
-}));
+app.use(cors());
 app.use(express.json());
 
 app.use("/api/question", questionRoutes);
@@ -22,7 +20,7 @@ app.use("/api/user", userRoutes);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: "*",
   },
 });
 
